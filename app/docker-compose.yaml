@@ -3,15 +3,15 @@
 version: "2.1"
 services:
   rabbitMQ_server:
-    image: 
-    container_name: 
-    ports:
+    image: "rabbitmq:3-management"
+    container_name: "rabbitmq"
+    ports: '5672:5672'
     restart:
   producer:
     image: 
     container_name:
     restart: 
-    ports:
+    ports: '15672:15672'
     depends_on:
       - rabbitMQ_server
   ride_matching:
