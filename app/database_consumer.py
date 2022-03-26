@@ -6,7 +6,7 @@ import json
 
 conn = sqlite3.connect('ride.db')
 print("Opened database successfully")
-conn.execute('''CREATE TABLE RIDE3
+conn.execute('''CREATE TABLE  IF NOT EXISTS RIDE3
 	(pickup TEXT,
 	 destination TEXT,
 	 time INT,
