@@ -5,26 +5,29 @@ services:
   rabbitMQ_server:
     image: "rabbitmq:3-management"
     container_name: "rabbitmq"
-    ports: '5672:5672'
-    restart:
+    ports: 
+      - 5672:5672
+      - 15672:15672
+    restart: unless-stopped
   producer:
-    image: 
-    container_name:
-    restart: 
+    image: "rabbitmq:3-management"
+    container_name: "rabbitmq"
+    restart: unless-stopped
     ports: '15672:15672'
     depends_on:
       - rabbitMQ_server
   ride_matching:
-    image: 
-    container_name: 
+    image: "rabbitmq:3-management"
+    container_name: "rabbitmq"
     depends_on:
+      - rabbitMQ_server
     environment:
-      - CONSUMER_ID=
-      - PRODUCER_ADDRESS=
+      - CONSUMER_ID= 1
+      - PRODUCER_ADDRESS = http://10.0.2.15:5200/
   ride_database:
-    image: 
-    container_name:
-    restart: 
+    image: "rabbitmq:3-management"
+    container_name: "rabbitmq"
+    restart: unless-stopped
     depends_on:
       - producer
   
