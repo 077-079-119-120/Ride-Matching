@@ -1,33 +1,57 @@
 # Fill in the YAML configuration for the microservices 
 
-version: "2.1"
+version: "3.2"
+
+# list of containers to be run
 services:
-  rabbitMQ_server:
-    image: "rabbitmq:3-management"
-    container_name: "rabbitmq"
-    ports: 
-      - 5672:5672
-      - 15672:15672
-    restart: unless-stopped
+
+  # rabbit_mq container uses the default rabbitmq image
+  # exposes the ports
+  # uses the specified volume
+  rabbit_mq:
+
+    # we use management image to get the
+    # plugin for web dashboard
+    image: rabbitmq:3.8-rc-management
+    container_name: rabbit_mq
+    ports:
+        - '5672:5672'
+        - '15672:15672'
+    volumes:
+      - rabbit_mqdata:/usr/share/rabbitmq/data
+
+  # produces container builds the producer image
+  # and produces message to the queue
   producer:
-    image: "rabbitmq:3-management"
-    container_name: "rabbitmq"
-    restart: unless-stopped
-    ports: '15672:15672'
+    build: producer
     depends_on:
-      - rabbitMQ_server
-  ride_matching:
-    image: "rabbitmq:3-management"
-    container_name: "rabbitmq"
-    depends_on:
-      - rabbitMQ_server
+        - rabbit_mq
     environment:
-      - CONSUMER_ID= 1
-      - PRODUCER_ADDRESS = http://10.0.2.15:5200/
-  ride_database:
-    image: "rabbitmq:3-management"
-    container_name: "rabbitmq"
-    restart: unless-stopped
+        AMQP_URL: 'amqp://rabbit_mq?connection_attempts=10&retry_delay=10'
+    volumes:
+      - ./producer:/usr/src/app/producer
+
+  # consumer container builds the consumer image
+  # and consumes messages from the queue
+  # we spawn 2 consumer containers to run parallely
+  # on the same queue
+  consumer1:
+    build: consumer
     depends_on:
-      - producer
+        - rabbit_mq
+    environment:
+        AMQP_URL: 'amqp://rabbit_mq?connection_attempts=10&retry_delay=10'
+    volumes:
+      - ./consumer:/usr/src/app/consumer
+  consumer2:
+    build: consumer
+    depends_on:
+        - rabbit_mq
+    environment:
+        AMQP_URL: 'amqp://rabbit_mq?connection_attempts=10&retry_delay=10'
+    volumes:
+      - ./consumer:/usr/src/app/consumer
+volumes:
+    rabbit_mqdata:
+      driver: local
   
