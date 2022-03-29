@@ -2,10 +2,12 @@
 from flask import Flask,request
 import pika
 import json
-
+import time 
+time.sleep(15)
 app = Flask(__name__)
 map_array = list() 
 connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
+
 channel = connection.channel()
 channel.queue_declare(queue='ride-sharing')
 channel.queue_declare(queue='database')
@@ -42,6 +44,7 @@ def map():
 
 
 if __name__ == "__main__":
+	print('Producer started')
 	app.run(host="0.0.0.0",port=port)
 	
 

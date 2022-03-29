@@ -1,8 +1,10 @@
 # Dockerfile for Producer 
-FROM python:3.7
+FROM python:3
 
 # install pika to access rabbitmq
-RUN pip install pika
+RUN pip3 install flask
+RUN pip3 install pika
+RUN pip3 install requests
 
 # Without this setting, Python never prints anything out.
 ENV PYTHONUNBUFFERED=1
@@ -14,4 +16,4 @@ WORKDIR /home/pes1ug19cs077/CloudHack_2/app/producer
 COPY producer.py .
 
 # start command
-CMD [ "python", "producer.py" ]
+CMD [ "python3", "producer.py" ]
