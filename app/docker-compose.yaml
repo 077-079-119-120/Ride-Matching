@@ -1,34 +1,61 @@
+version: "3.2"
 
-version: "2.1"
 services:
-  rabbitMQ_server:
-    image: 'rabbitmq:3-management'
-    container_name: rabbitMQ_server
+
+  rabbit_mq:
+
+    image: rabbitmq:3.8-rc-management
+    container_name: rabbit_mq
     ports:
-        - '5672:5672'
-        - '15672:15672'
-    restart: always 
+        - 5672:5672
+        - 15672:15672
+    volumes:
+      - rabbit_mqdata:/usr/share/rabbitmq/data
+
   producer:
-    image: /home/pes1ug19cs077/CloudHack_2/app/producer
-    container_name: producer
-    restart: always 
+    build: producer
+    depends_on:
+        - rabbit_mq
     ports:
-        - '5200:5200'
-    depends_on:
-      - rabbitMQ_server
-  ride_matching:
-    image: /home/pes1ug19cs077/CloudHack_2/app/ride_matching_consumer
-    container_name: ride_matching_consumer
-    depends_on:
-      - rabbitMQ_server
-      - producer
+        - 5200:5200
     environment:
-      - CONSUMER_ID= 1
-      - PRODUCER_ADDRESS= 'localhost'
-  ride_database:
-    image: /home/pes1ug19cs077/CloudHack_2/app/database_consumer.py
-    container_name: database_consumer 
-    restart: always 
+        AMQP_URL: 'amqp://rabbit_mq?connection_attempts=10&retry_delay=10'
+    volumes:
+      - ./producer:/home/pes1ug19cs077/CloudHack_2/app/producer
+
+  consumer1:
+    build: consumer
     depends_on:
-      - producer
-  
+        - rabbit_mq
+        - producer
+    environment:
+        AMQP_URL: 'amqp://rabbit_mq?connection_attempts=10&retry_delay=10'
+        CONSUMER_ID: 1
+        SERVER_URL: 'http://10.0.2.15:5200/'
+    volumes:
+      - ./consumer:/home/pes1ug19cs077/CloudHack_2/app/consumer
+
+  consumer2:
+    build: consumer
+    depends_on:
+        - rabbit_mq
+        - producer
+    environment:
+        AMQP_URL: 'amqp://rabbit_mq?connection_attempts=10&retry_delay=10'
+        CONSUMER_ID: 2
+        SERVER_URL: 'http://10.0.2.15:5200/'
+    volumes:
+      - ./consumer:/home/pes1ug19cs077/CloudHack_2/app/consumer
+
+  database:
+    build: database
+    depends_on:
+        - rabbit_mq
+        - producer
+    environment:
+        AMQP_URL: 'amqp://rabbit_mq?connection_attempts=10&retry_delay=10'
+    volumes:
+      - ./database:/home/pes1ug19cs077/CloudHack_2/app/database
+volumes:
+    rabbit_mqdata:
+      driver: local

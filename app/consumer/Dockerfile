@@ -8,10 +8,10 @@ RUN pip install pika
 ENV PYTHONUNBUFFERED=1
 
 # declare the source directory
-WORKDIR /home/pes1ug19cs077/CloudHack_2/app/ride_matching_consumer.py
+WORKDIR /home/pes1ug19cs077/CloudHack_2/app/consumer
 
 # copy the file
-COPY Dockerfile_ride_matching .
+COPY Dockerfile .
 
 # start command
-CMD [ "python", "Dockerfile_rife_matching.py" ]
+CMD [ "python", "Dockerfile.py" ]
