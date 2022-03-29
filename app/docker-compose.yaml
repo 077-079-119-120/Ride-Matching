@@ -31,7 +31,7 @@ services:
     environment:
         AMQP_URL: 'amqp://rabbit_mq?connection_attempts=10&retry_delay=10'
         CONSUMER_ID: 1
-        SERVER_URL: 'http://10.0.2.15:5200/'
+        SERVER_URL: 'http://10.0.2.15:5200/new_ride_matching_consumer'
     volumes:
       - ./consumer:/home/pes1ug19cs077/CloudHack_2/app/consumer
 
@@ -43,7 +43,7 @@ services:
     environment:
         AMQP_URL: 'amqp://rabbit_mq?connection_attempts=10&retry_delay=10'
         CONSUMER_ID: 2
-        SERVER_URL: 'http://10.0.2.15:5200/'
+        SERVER_URL: 'http://10.0.2.15:5200/new_ride_matching_consumer'
     volumes:
       - ./consumer:/home/pes1ug19cs077/CloudHack_2/app/consumer
 

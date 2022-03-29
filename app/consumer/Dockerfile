@@ -1,8 +1,10 @@
 # Dockerfile for ride matching consumer
-FROM python:3.7
+FROM python:3
 
 # install pika to access rabbitmq
-RUN pip install pika
+RUN pip3 install flask
+RUN pip3 install pika
+RUN pip3 install requests
 
 # Without this setting, Python never prints anything out.
 ENV PYTHONUNBUFFERED=1
@@ -11,7 +13,7 @@ ENV PYTHONUNBUFFERED=1
 WORKDIR /home/pes1ug19cs077/CloudHack_2/app/consumer
 
 # copy the file
-COPY Dockerfile .
+COPY ride_matching_consumer.py .
 
 # start command
-CMD [ "python", "Dockerfile.py" ]
+CMD [ "python3", "ride_matching_consumer.py" ]

@@ -4,6 +4,8 @@ import requests
 import pika
 import time
 
+time.sleep(15)
+
 server_ip = os.getenv('SERVER_IP',"localhost")
 consumer_id = os.getenv('CONSUMER_ID',"default")
 send_to = "http://{}/new_ride_matching_consumer".format(server_ip)
