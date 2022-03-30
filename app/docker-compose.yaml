@@ -1,61 +1,52 @@
-version: "3.2"
-
+version: "2.1"
 services:
-
-  rabbit_mq:
-
+  rabbitMQ_server:
     image: rabbitmq:3.8-rc-management
-    container_name: rabbit_mq
+    container_name: rmq 
     ports:
-        - 5672:5672
-        - 15672:15672
-    volumes:
-      - rabbit_mqdata:/usr/share/rabbitmq/data
-
+       - "5672:5672"
+    #restart:
   producer:
-    build: producer
-    depends_on:
-        - rabbit_mq
+    build:
+      context: .
+      dockerfile: ./Dockerfile_producer
     ports:
-        - 5200:5200
-    environment:
-        AMQP_URL: 'amqp://rabbit_mq?connection_attempts=10&retry_delay=10'
-    volumes:
-      - ./producer:/home/pes1ug19cs077/CloudHack_2/app/producer
-
-  consumer1:
-    build: consumer
+       - "5200:5200"
     depends_on:
-        - rabbit_mq
-        - producer
+      - rabbitMQ_server
     environment:
-        AMQP_URL: 'amqp://rabbit_mq?connection_attempts=10&retry_delay=10'
-        CONSUMER_ID: 1
-        SERVER_URL: 'http://10.0.2.15:5200/new_ride_matching_consumer'
-    volumes:
-      - ./consumer:/home/pes1ug19cs077/CloudHack_2/app/consumer
-
-  consumer2:
-    build: consumer
+      AMQP_URL: 'amqp://rmq?connection_attempts=5&retry_delay=10'
+      
+  ride_matching1:
+    build: 
+       context: . 
+       dockerfile: ./Dockerfile_ride_matching
+    environment:
+      AMQP_URL: 'amqp://rmq?connection_attempts=5&retry_delay=10'
+      CONSUMER_ID: 1
+      SERVER_IP: 'producer:5200'
     depends_on:
-        - rabbit_mq
-        - producer
+       - rabbitMQ_server
+       - producer
+  ride_matching2:
+    build: 
+       context: . 
+       dockerfile: ./Dockerfile_ride_matching
     environment:
-        AMQP_URL: 'amqp://rabbit_mq?connection_attempts=10&retry_delay=10'
-        CONSUMER_ID: 2
-        SERVER_URL: 'http://10.0.2.15:5200/new_ride_matching_consumer'
-    volumes:
-      - ./consumer:/home/pes1ug19cs077/CloudHack_2/app/consumer
-
-  database:
-    build: database
+      AMQP_URL: 'amqp://rmq?connection_attempts=10&retry_delay=10'
+      CONSUMER_ID: 2
+      SERVER_IP: 'producer:5200'
     depends_on:
-        - rabbit_mq
-        - producer
+       - rabbitMQ_server
+       - producer
+      
+  ride_database:
+    build: 
+      context: .
+      dockerfile: ./Dockerfile_db
     environment:
-        AMQP_URL: 'amqp://rabbit_mq?connection_attempts=10&retry_delay=10'
-    volumes:
-      - ./database:/home/pes1ug19cs077/CloudHack_2/app/database
-volumes:
-    rabbit_mqdata:
-      driver: local
+       AMQP_URL: 'amqp://rmq?connection_attempts=10&retry_delay=10'
+    depends_on:
+      - rabbitMQ_server
+      - producer
+      
