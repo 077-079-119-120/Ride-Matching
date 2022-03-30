@@ -5,12 +5,16 @@ import pika
 import time
 
 time.sleep(15)
+amqp_url = os.environ['AMQP_URL']
+server_url = os.environ['SERVER_URL']
+consumer_id = os.environ['CONSUMER_ID']
+url_params = pika.URLParameters(amqp_url)
 
-server_ip = os.getenv('SERVER_IP',"localhost")
+
 consumer_id = os.getenv('CONSUMER_ID',"default")
-send_to = "http://{}/new_ride_matching_consumer".format(server_ip)
-r= requests.post(send_to,json={"consumer_id":consumer_id})#Format string server ip to localhost:
-connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
+send_to = server_url
+r= requests.post(send_to,json={"consumer_id":consumer_id})#Format string server ip to localhost: 
+connection = pika.BlockingConnection(url_params)
 channel = connection.channel()
 channel.queue_declare(queue='ride-sharing')
 

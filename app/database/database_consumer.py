@@ -1,5 +1,6 @@
 # Use this file to setup the database consumer that stores the ride information in the database
 import requests
+import os
 import pika
 import sqlite3
 import json
@@ -14,8 +15,10 @@ conn.execute('''CREATE TABLE  IF NOT EXISTS RIDE3
 	 seats INT);''')
 print("Table created successfully")
 
+amqp_url = os.environ['AMQP_URL']
+url_params = pika.URLParameters(amqp_url)
 
-connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
+connection = pika.BlockingConnection(url_params)
 channel = connection.channel()
 channel.queue_declare(queue='database')
 
@@ -27,7 +30,7 @@ def callback(ch,method,properties,body):
 	cursor=conn.execute("SELECT * FROM RIDE3;")
 	for row in cursor:
 		print(row)
-	conn.close()
+	#conn.close()
 	
 	
 

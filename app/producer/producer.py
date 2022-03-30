@@ -1,12 +1,15 @@
 # Code for Producer
 from flask import Flask,request
+import os 
 import pika
 import json
 import time 
 time.sleep(15)
 app = Flask(__name__)
 map_array = list() 
-connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
+amqp_url = os.environ['AMQP_URL']
+url_params = pika.URLParameters(amqp_url)
+connection = pika.BlockingConnection(url_params)
 
 channel = connection.channel()
 channel.queue_declare(queue='ride-sharing')
